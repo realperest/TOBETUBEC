@@ -1,0 +1,172 @@
+/**
+ * Tesla / büyük dokunmatik: Model 3·Y ~1920×1080, S·X 1920×1200; yarım tarayıcı ~1160×620 (TMC).
+ * Hedef: tüm yüksekliklerde 16:9 oynatma alanı, alt kontrol + alt rail için güvenli boşluk.
+ */
+:root {
+  --tt-top-chrome: 120px;
+  --tt-bottom-chrome: 200px;
+  --tt-rail: 80px;
+  --tt-suggestion-side: 320px;
+  --tt-video-chrome: calc(var(--tt-top-chrome) + var(--tt-bottom-chrome) + var(--tt-rail));
+  --tt-max-player-h: min(72dvh, calc(100dvh - var(--tt-video-chrome)));
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .app-bottom {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+  #versionFooter,
+  #versionFooterP {
+    bottom: max(4px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Ana sayfa / grid: dar dikey, geniş yatay */
+#panelHome.grid-panel,
+#panelHistory.grid-panel,
+.grid-panel {
+  width: 100%;
+  max-width: 100%;
+  min-height: 35dvh;
+  box-sizing: border-box;
+  padding-left: max(8px, env(safe-area-inset-left));
+  padding-right: max(8px, env(safe-area-inset-right));
+}
+
+#panelHome,
+#panelIn {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: max(8px, 1.2vw);
+  padding: max(8px, 1.2vw);
+}
+
+/* Oynatıcı: üst alan + sahne + kontroller dikey oran */
+body.player-app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: max(100px, var(--tt-rail));
+  box-sizing: border-box;
+}
+
+.player-layout {
+  max-width: min(100%, 1920px);
+  width: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  margin: 0 auto;
+  padding: 0 max(4px, env(safe-area-inset-left)) 0 max(4px, env(safe-area-inset-right));
+  align-items: stretch;
+}
+
+.player-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 65%;
+}
+
+#videoShell {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  min-height: 0;
+  max-height: var(--tt-max-player-h);
+  width: 100%;
+}
+
+#embedShell {
+  position: relative;
+  width: 100%;
+  flex: 0 0 auto;
+  min-height: 0;
+  max-height: var(--tt-max-player-h);
+  aspect-ratio: 16 / 9;
+  max-width: min(100%, calc(var(--tt-max-player-h) * 16 / 9));
+  margin: 0 auto;
+  background: #000;
+}
+
+#embedShell iframe,
+#embedShell #player {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: 0;
+  display: block;
+}
+
+#viewCanvas,
+#viewCanvas5,
+#glCanvas,
+#media {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100%;
+  min-height: 0 !important;
+  max-height: var(--tt-max-player-h);
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  background: #000;
+}
+
+.controls {
+  max-width: min(100%, 1920px);
+  flex: 0 0 auto;
+}
+
+.suggestions {
+  min-width: 0;
+  flex: 0 0 min(100%, var(--tt-suggestion-side));
+}
+
+.suggestions .suggestions-title {
+  margin: 0;
+  text-align: left;
+  padding: 8px 12px;
+}
+
+/* 1160px altı: öneriler alta (mevcut 900px kırılımı ile uyum) */
+@media (max-width: 900px) {
+  :root {
+    --tt-suggestion-side: 100%;
+  }
+  .suggestions {
+    max-height: min(50dvh, 400px);
+  }
+}
+
+/* Tesla yatay, düşük yükseklik (~620): sahneyi kıs, kaydırma ver */
+@media (max-height: 700px) {
+  :root {
+    --tt-top-chrome: 96px;
+    --tt-bottom-chrome: 160px;
+    --tt-max-player-h: min(55dvh, calc(100dvh - var(--tt-video-chrome)));
+  }
+}
+
+/* Çok geniş: içeriği 1920 ile sınırla, kenar boşluk */
+@media (min-width: 1920px) {
+  .app-header,
+  .category-row {
+    max-width: 1920px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

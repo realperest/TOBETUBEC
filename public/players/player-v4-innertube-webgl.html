@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TobeTube V4</title>
+    <link rel="stylesheet" href="/css/player.css" />
+    <link rel="stylesheet" href="/css/player-v4.css" />
+  </head>
+  <body class="player-app" data-page-version="260424.0045">
+    <div class="app-header">
+      <div class="brand" role="img" aria-label="TobeTube">TobeTube</div>
+      <div class="search-wrap">
+        <input id="searchInput" type="search" placeholder="Ara" autocomplete="off" />
+        <button type="button" id="searchRun">Ara</button>
+        <button type="button" id="voiceSearch" title="Sesli ara">Mic</button>
+        <span id="quotaLabel" aria-live="polite">0/100</span>
+      </div>
+      <div class="header-aside">
+        <div id="authMessage" class="hidden" aria-hidden="true"></div>
+        <div id="userLine" class="hidden" aria-hidden="true"></div>
+        <button type="button" id="googleLogin">Google ile Giriş</button>
+        <button type="button" id="googleLogout" class="hidden">Çıkış</button>
+      </div>
+    </div>
+    <div class="player-layout">
+      <div class="player-main">
+        <div class="version-badge badge-v4">V4 WebGL</div>
+        <div id="videoShell">
+          <video id="hiddenVideo" playsinline crossorigin="anonymous"></video>
+          <canvas id="glCanvas" width="1280" height="720" aria-label="Video"></canvas>
+        </div>
+        <div class="controls">
+          <div class="row-top">
+            <div id="progress" aria-label="İlerleme">
+              <div id="progressBuffered" aria-hidden="true"></div>
+              <div id="progressFill"></div>
+            </div>
+          </div>
+          <div class="row-mid">
+            <span id="timeText">0:00 / 0:00</span>
+            <button type="button" class="speed-btn" data-rate="0.75">0.75x</button>
+            <button type="button" class="speed-btn" data-rate="1">1x</button>
+            <button type="button" class="speed-btn" data-rate="1.25">1.25x</button>
+            <button type="button" class="speed-btn" data-rate="1.5">1.5x</button>
+            <button type="button" class="speed-btn" data-rate="2">2x</button>
+            <button type="button" class="quality-btn" id="volumeBtn" title="Ses">Ses</button>
+            <button type="button" class="quality-btn" id="fsBtn" title="Tam ekran">Tam</button>
+          </div>
+        </div>
+      </div>
+      <aside class="suggestions" aria-label="Öneriler">
+        <h2 class="q-title suggestions-title">Öneriler</h2>
+        <ul id="sugList"></ul>
+      </aside>
+    </div>
+    <div id="disconnect" aria-hidden="true" role="alert">Bağlantı kesildi.</div>
+    <div class="app-bottom" aria-label="Oynatıcı sürümleri">
+      <div class="bottom-rail" role="navigation">
+        <button type="button" class="nav-home" id="mainHome" title="Ana">Ana</button>
+        <button type="button" class="nav-v" data-v="1" title="V1">V1</button>
+        <button type="button" class="nav-v" data-v="2" title="V2">V2</button>
+        <button type="button" class="nav-v" data-v="3" title="V3">V3</button>
+        <button type="button" class="nav-v" data-v="4" aria-pressed="true" title="V4">V4</button>
+        <button type="button" class="nav-v" data-v="5" title="V5">V5</button>
+      </div>
+    </div>
+    <div class="quality-lift" id="qualitySheet" aria-hidden="true" role="dialog" aria-label="Kalite ve sürüm">
+      <div class="sheet" id="qualitySheetPanel">
+        <div class="q-title" id="qualitySheetTitle">V4 kalite</div>
+        <button type="button" class="q-opt" data-q="480" data-sym="Hizli 480p">Hizli (480p)</button>
+        <button type="button" class="q-opt" data-q="720" data-sym="Dengeli 720p">Dengeli (720p)</button>
+        <button type="button" class="q-opt" data-q="1080" data-sym="Kaliteli 1080p">Kaliteli (1080p)</button>
+        <button type="button" class="q-opt" data-q="auto" data-sym="Otomatik ABR">Otomatik (ABR)</button>
+      </div>
+    </div>
+    <div id="versionFooterP" aria-label="Sürüm"></div>
+    <script src="/js/version-footer.js" defer></script>
+    <script src="/js/ws-client.js" defer></script>
+    <script src="/js/auth.js" defer></script>
+    <script src="/js/quota-display.js" defer></script>
+    <script src="/js/player-topbar.js" defer></script>
+    <script src="/js/player-common.js" defer></script>
+    <script src="/js/buffer-tune.js" defer></script>
+    <script src="/js/player-v4.js" defer></script>
+  </body>
+</html>

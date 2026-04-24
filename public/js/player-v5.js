@@ -1,0 +1,223 @@
+(function () {
+  const path = String(window.location.pathname || '');
+  const selfFile = path.replace(/^.*\//, '') || 'player-v5-ytdlp-proxy.html';
+  const video = document.getElementById('hiddenVideo');
+  const canvas = document.getElementById('viewCanvas5');
+  if (!video || !canvas) {
+    return;
+  }
+  const ctx = canvas.getContext('2d');
+  function qParam() {
+    return String(new URLSearchParams(window.location.search).get('q') || 'auto');
+  }
+  function ytdlpQ() {
+    const q = qParam();
+    if (q === 'auto' || q === 'abr') {
+      return '720';
+    }
+    if (q === '1080') {
+      return '1080';
+    }
+    if (q === '720') {
+      return '720';
+    }
+    if (q === '480') {
+      return '480';
+    }
+    return 'best';
+  }
+  function id() {
+    return new URLSearchParams(window.location.search).get('videoId') || '';
+  }
+  function showPlaybackError(reason) {
+    const shell = document.getElementById('videoShell');
+    if (!shell) {
+      return;
+    }
+    const old = shell.querySelector('.player-error');
+    if (old) {
+      old.remove();
+    }
+    const box = document.createElement('div');
+    box.className = 'player-error';
+    box.textContent = 'V5 yt-dlp akisi baslatilamadi: ' + reason;
+    shell.appendChild(box);
+  }
+  async function loadSug(seedQuery) {
+    const v = id();
+    if (!v) {
+      return;
+    }
+    const r = await fetch('/api/suggestions/' + encodeURIComponent(v), { credentials: 'include' });
+    if (!r.ok) {
+      return;
+    }
+    const list = await r.json();
+    const ul = document.getElementById('sugList');
+    if (!ul) {
+      return;
+    }
+    ul.textContent = '';
+    let count = 0;
+    (list || []).forEach(function (s) {
+      if (!s || !s.id) {
+        return;
+      }
+      if (String(s.id) === String(v)) {
+        return;
+      }
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '/players/' + selfFile + '?videoId=' + encodeURIComponent(String(s.id)) + '&q=' + encodeURIComponent(qParam());
+      a.innerHTML = '<img src="' + (s.thumbnail || '').replace(/"/g, '&quot;') + '" alt="" width="120" height="68" /><div><h4>' + (s.title || '').replace(/</g, '&lt;') + '</h4><p>' + (s.channel || '').replace(/</g, '&lt;') + '</p></div>';
+      li.appendChild(a);
+      ul.appendChild(li);
+      count += 1;
+    });
+    if (count === 0 && seedQuery) {
+      const r2 = await fetch('/api/search?q=' + encodeURIComponent(seedQuery), { credentials: 'include' });
+      if (!r2.ok) {
+        return;
+      }
+      const d2 = await r2.json();
+      (d2.videos || []).slice(0, 24).forEach(function (s) {
+        if (!s || !s.id || String(s.id) === String(v)) {
+          return;
+        }
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = '/players/' + selfFile + '?videoId=' + encodeURIComponent(String(s.id)) + '&q=' + encodeURIComponent(qParam());
+        a.innerHTML = '<img src="' + (s.thumbnail || '').replace(/"/g, '&quot;') + '" alt="" width="120" height="68" /><div><h4>' + (s.title || '').replace(/</g, '&lt;') + '</h4><p>' + (s.channel || '').replace(/</g, '&lt;') + '</p></div>';
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
+    }
+  }
+  function loop() {
+    if (ctx && video.readyState >= 2) {
+      const w = canvas.clientWidth || 1280;
+      const h2 = Math.floor((w * 9) / 16);
+      canvas.width = w;
+      canvas.height = h2;
+      try {
+        ctx.drawImage(video, 0, 0, w, h2);
+      } catch (e) {
+        void 0;
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+  function bindPauseToggle() {
+    const onToggle = function () {
+      if (video.paused) {
+        void video.play();
+      } else {
+        video.pause();
+      }
+    };
+    canvas.addEventListener('click', onToggle);
+    canvas.addEventListener('touchend', function (e) {
+      e.preventDefault();
+      onToggle();
+    }, { passive: false });
+    document.addEventListener('keydown', function (e) {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        onToggle();
+      }
+    });
+  }
+  (async function () {
+    const v = id();
+    if (!v) {
+      return;
+    }
+    let seed = 'teknoloji';
+    try {
+      const mr = await fetch('/api/video/' + encodeURIComponent(v), { credentials: 'include' });
+      if (mr.ok) {
+        const md = await mr.json();
+        if (md && (md.title || md.channel)) {
+          seed = String(md.title || md.channel);
+        }
+      }
+    } catch (err) {
+      void err;
+    }
+    void loadSug(seed);
+    const yq = ytdlpQ();
+    const u = new URL(
+      '/api/ytdlp/stream/' + encodeURIComponent(v) + '?quality=' + encodeURIComponent(yq),
+      window.location.origin,
+    );
+    try {
+      const r = await fetch(u, { credentials: 'include' });
+      if (!r.ok) {
+        showPlaybackError('/api/ytdlp/stream HTTP ' + r.status);
+        return;
+      }
+      const d = await r.json();
+      if (!d || !d.url) {
+        showPlaybackError('yt-dlp URL donmedi');
+        return;
+      }
+      void loadSug(seed);
+      video.src = d.url;
+      video.preload = 'auto';
+      video.muted = false;
+      video.defaultMuted = false;
+      video.volume = 1;
+      video.load();
+      if (window.TobeTubeBuffer && typeof window.TobeTubeBuffer.installHtml5 === 'function') {
+        window.TobeTubeBuffer.installHtml5(video, {
+          fallbackStream: function () {
+            return fetch('/api/ytdlp/stream/' + encodeURIComponent(v) + '?quality=480', { credentials: 'include' })
+              .then(function (r) {
+                return r.ok ? r.json() : null;
+              })
+              .then(function (yd) {
+                return yd && yd.url ? yd.url : null;
+              });
+          },
+        });
+      }
+      if (window.TobeTubeBuffer && typeof window.TobeTubeBuffer.safePlay === 'function') {
+        await window.TobeTubeBuffer.safePlay(video);
+      } else {
+        await video.play();
+      }
+    } catch (err) {
+      const msg = err && err.message ? err.message : String(err);
+      window.console && window.console.error && window.console.error('v5 play error', err);
+      showPlaybackError(msg);
+      return;
+    }
+    if (window.TobeTubeChrome && window.TobeTubeChrome.setAdapter) {
+      window.TobeTubeChrome.setAdapter({
+        getCurrentTime: function () {
+          return video.currentTime;
+        },
+        getDuration: function () {
+          return (isFinite(video.duration) && video.duration) || 0;
+        },
+        seek: function (s) {
+          video.currentTime = s;
+        },
+        setRate: function (r) {
+          video.playbackRate = r;
+        },
+        play: function () {
+          return video.play();
+        },
+        pause: function () {
+          video.pause();
+        },
+        isPaused: function () {
+          return video.paused;
+        },
+      });
+    }
+    bindPauseToggle();
+    void loop();
+  })();
+}());

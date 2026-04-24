@@ -1,0 +1,7 @@
+#embedShell {
+  min-height: 0;
+}
+
+#embedShell iframe {
+  min-height: 0;
+}
