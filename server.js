@@ -18,6 +18,7 @@ import proxyRouter from './routes/proxy.js';
 import ytdlRouter from './routes/ytdl.js';
 import quotaRouter from './routes/quota.js';
 import { logError, logInfo } from './lib/log.js';
+import { isGoogleOAuthEnabled } from './lib/oauthConfig.js';
 
 dotenv.config({ override: true });
 
@@ -58,7 +59,7 @@ passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+if (isGoogleOAuthEnabled()) {
   passport.use(
     new GoogleStrategy(
       {
@@ -80,7 +81,15 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     ),
   );
 } else {
-  logInfo('Google OAuth yok: GOOGLE_CLIENT_ID/SECRET .env’de olmalı', {});
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    logError(
+      'Google OAuth: GOOGLE_REDIRECT_URI gecerli ve dolu olmali (https://.../auth/callback). Simdi devre disi.',
+      new Error('OAuth eksik alan'),
+      {},
+    );
+  } else {
+    logInfo('Google OAuth yok: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI gerekir', {});
+  }
 }
 
 app.get('/api/health', (req, res) => {
@@ -106,6 +115,17 @@ app.use((req, res) => {
     return res.status(404).send('Bulunamadi');
   }
   return res.status(404).json({ error: 'Bulunamadi' });
+});
+
+app.use((err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+  logError('express istek hatasi', err instanceof Error ? err : new Error(String(err)), {
+    path: req.path,
+    method: req.method,
+  });
+  res.status(500).type('text').send('Internal Server Error');
 });
 
 const server = http.createServer(app);
