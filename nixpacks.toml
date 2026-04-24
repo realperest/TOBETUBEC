@@ -1,9 +1,12 @@
 [phases.setup]
 nixPkgs = ["nodejs_20"]
-aptPkgs = ["ffmpeg", "yt-dlp", "ca-certificates"]
+aptPkgs = ["ffmpeg", "ca-certificates", "curl"]
 
 [phases.install]
-cmds = ["npm ci --omit=dev || npm install --omit=dev"]
+cmds = [
+  "curl -fsSL -L -o /usr/local/bin/yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp && chmod 755 /usr/local/bin/yt-dlp",
+  "npm ci --omit=dev || npm install --omit=dev"
+]
 
 [start]
 cmd = "node server.js"

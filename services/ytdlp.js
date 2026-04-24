@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { YT_CHROME_UA } from '../lib/youtubeUpstream.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -45,50 +46,86 @@ function formatSelector(quality) {
 }
 
 /**
+ * @param {string} fsel
+ * @param {string} videoUrl
+ * @returns {string[]}
+ */
+function ytdlpGetUrlArgs(fsel, videoUrl) {
+  return [
+    '-g',
+    '-f',
+    fsel,
+    '--no-warnings',
+    '--user-agent',
+    YT_CHROME_UA,
+    '--add-header',
+    'Referer:https://www.youtube.com/watch',
+    '--add-header',
+    'Accept-Language:en-US,en;q=0.9',
+    '--extractor-args',
+    'youtube:player_client=web,android,ios',
+    videoUrl,
+  ];
+}
+
+/**
+ * @param {string} quality
+ * @returns {string[]}
+ */
+function formatStringAttempts(quality) {
+  const primary = formatSelector(quality);
+  return [primary, 'best[acodec!=none][vcodec!=none]/22/18/best', 'b', 'w'];
+}
+
+/**
  * yt-dlp ile tek bir doğrudan indirme URL’si (veya hata) döner.
  * @param {string} videoId
  * @param {string} [quality]
  * @returns {Promise<string>}
  */
 export async function getStreamUrlWithYtdlp(videoId, quality) {
-  const fsel = formatSelector(quality);
   const videoUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
-  const args = ['-g', '-f', fsel, '--no-warnings', videoUrl];
-  const candidates = process.platform === 'win32'
+  const fAttempts = formatStringAttempts(quality);
+  const buildCandidates = (argLine) => (process.platform === 'win32'
     ? [
-      { cmd: 'yt-dlp.exe', args },
-      { cmd: 'yt-dlp', args },
-      { cmd: 'python', args: ['-m', 'yt_dlp', ...args] },
-      { cmd: 'py', args: ['-m', 'yt_dlp', ...args] },
+      { cmd: 'yt-dlp.exe', args: argLine },
+      { cmd: 'yt-dlp', args: argLine },
+      { cmd: 'python', args: ['-m', 'yt_dlp', ...argLine] },
+      { cmd: 'py', args: ['-m', 'yt_dlp', ...argLine] },
     ]
     : [
-      { cmd: 'yt-dlp', args },
-      { cmd: 'python3', args: ['-m', 'yt_dlp', ...args] },
-      { cmd: 'python', args: ['-m', 'yt_dlp', ...args] },
-    ];
+      { cmd: 'yt-dlp', args: argLine },
+      { cmd: 'python3', args: ['-m', 'yt_dlp', ...argLine] },
+      { cmd: 'python', args: ['-m', 'yt_dlp', ...argLine] },
+    ]);
 
   /** @type {Error | null} */
   let lastErr = null;
-  for (const c of candidates) {
-    try {
-      const { stdout, stderr } = await execFileAsync(c.cmd, c.args, {
-        maxBuffer: 10 * 1024 * 1024,
-      });
-      const line = String(stdout)
-        .split('\n')
-        .map((s) => s.trim())
-        .find(Boolean);
-      if (!line) {
-        const e = new Error('yt-dlp bos cikti');
-        e.code = 'YTDLP_EMPTY';
-        e.detail = (stderr && String(stderr).trim()) || '';
-        throw e;
-      }
-      return line;
-    } catch (err) {
-      lastErr = err instanceof Error ? err : new Error(String(err));
-      const code = /** @type {any} */ (lastErr).code;
-      if (code !== 'ENOENT' && !isMissingPythonYtdlp(lastErr)) {
+  for (const fsel of fAttempts) {
+    const argLine = ytdlpGetUrlArgs(fsel, videoUrl);
+    const candidates = buildCandidates(argLine);
+    for (const c of candidates) {
+      try {
+        const { stdout, stderr } = await execFileAsync(c.cmd, c.args, {
+          maxBuffer: 10 * 1024 * 1024,
+        });
+        const line = String(stdout)
+          .split('\n')
+          .map((s) => s.trim())
+          .find(Boolean);
+        if (!line) {
+          const e = new Error('yt-dlp bos cikti');
+          e.code = 'YTDLP_EMPTY';
+          e.detail = (stderr && String(stderr).trim()) || '';
+          throw e;
+        }
+        return line;
+      } catch (err) {
+        lastErr = err instanceof Error ? err : new Error(String(err));
+        const code = /** @type {any} */ (lastErr).code;
+        if (code === 'ENOENT' || isMissingPythonYtdlp(lastErr)) {
+          continue;
+        }
         break;
       }
     }

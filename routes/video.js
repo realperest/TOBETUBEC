@@ -1,7 +1,7 @@
 import express from 'express';
 import { getInnertube } from '../services/innertube.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
-import { toProxyStreamUrl } from '../lib/videoMappers.js';
+import { toProxyStreamUrl, getRequestPublicBaseUrl } from '../lib/videoMappers.js';
 import { getOrSet } from '../services/cache.js';
 import { logError, logInfo } from '../lib/log.js';
 import {
@@ -95,6 +95,46 @@ async function findVideoInfoForGeneratedDash(innertube, videoId, firstInfo) {
     return null;
   }
   return null;
+}
+
+/**
+ * Sunucu / veri merkezi IP'lerinde tek istemciyle streaming_data boş kalabiliyor.
+ * @param {import('youtubei.js').Innertube} innertube
+ * @param {string} videoId
+ * @returns {Promise<any>}
+ */
+async function getBasicInfoForPlayback(innertube, videoId) {
+  const clientOrder = [undefined, 'WEB', 'ANDROID', 'IOS', 'MWEB', 'TV', 'WEB_CREATOR'];
+  /** @type {any} */
+  let lastOk = null;
+  for (const client of clientOrder) {
+    try {
+      const info = client
+        ? await innertube.getBasicInfo(videoId, { client: /** @type {any} */ (client) })
+        : await innertube.getBasicInfo(videoId);
+      if (info && isNotHardBlocked(info) && hasStreamableFormats(info)) {
+        return info;
+      }
+      if (info && isNotHardBlocked(info)) {
+        lastOk = info;
+      }
+    } catch (e) {
+      logInfo('getBasicInfo client denemesi', {
+        videoId,
+        client: client || 'varsayilan',
+        err: (e instanceof Error) ? e.message : String(e),
+      });
+    }
+  }
+  if (lastOk) {
+    return lastOk;
+  }
+  try {
+    return await innertube.getBasicInfo(videoId);
+  } catch (e) {
+    logInfo('getBasicInfo son fallback getInfo', { videoId, err: (e instanceof Error) ? e.message : String(e) });
+    return await innertube.getInfo(videoId);
+  }
 }
 
 /**
@@ -225,9 +265,18 @@ async function buildFormatList(innertube, req, videoId, info) {
     });
   };
 
+  const isVideoFormat = (f) => {
+    if (!f || !f.url) {
+      return false;
+    }
+    if (f.has_video) {
+      return true;
+    }
+    return Boolean(f.mime_type && /video\//i.test(String(f.mime_type)));
+  };
   const addList = async (arr) => {
     for (const f of arr || []) {
-      if (!f.has_video) {
+      if (!isVideoFormat(f)) {
         continue;
       }
       try {
@@ -366,7 +415,7 @@ router.get('/:videoId', async (req, res) => {
     const innertube = await getInnertube();
     let info;
     try {
-      info = await innertube.getBasicInfo(videoId);
+      info = await getBasicInfoForPlayback(innertube, videoId);
     } catch (e) {
       logError('video getBasicInfo', e instanceof Error ? e : new Error(String(e)), { videoId });
       info = await innertube.getInfo(videoId);
@@ -380,7 +429,7 @@ router.get('/:videoId', async (req, res) => {
     const channel = info.basic_info?.channel && info.basic_info.channel.name != null
       ? String(info.basic_info.channel.name)
       : '';
-    const rel = `${req.protocol}://${req.get('host')}`;
+    const rel = getRequestPublicBaseUrl(req) || `${req.protocol}://${req.get('host')}`;
     const dashManifestUrl = `${rel}/api/video/${encodeURIComponent(videoId)}/manifest.mpd`;
     const hlsManifestUrl = `${rel}/api/video/${encodeURIComponent(videoId)}/manifest.m3u8`;
     const formats = await buildFormatList(innertube, req, videoId, info);
