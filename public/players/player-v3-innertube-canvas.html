@@ -29,15 +29,6 @@
         <div id="videoShell">
           <video id="hiddenVideo" playsinline crossorigin="anonymous"></video>
           <canvas id="viewCanvas" width="1280" height="720" aria-label="Video"></canvas>
-          <div id="speedMenu" class="speed-menu" aria-hidden="true" aria-label="Oynatma hızı">
-            <button type="button" class="speed-opt" data-rate="2">2x</button>
-            <button type="button" class="speed-opt" data-rate="1.75">1.75x</button>
-            <button type="button" class="speed-opt" data-rate="1.5">1.5x</button>
-            <button type="button" class="speed-opt" data-rate="1.25">1.25x</button>
-            <button type="button" class="speed-opt" data-rate="1" aria-pressed="true">1x</button>
-            <button type="button" class="speed-opt" data-rate="0.75">0.75x</button>
-            <button type="button" class="speed-opt" data-rate="0.5">0.5x</button>
-          </div>
         </div>
         <div class="controls controls-yt">
           <div class="row-mid row-mid-yt">
@@ -84,6 +75,15 @@
 
             <div class="control-group control-speed">
               <button type="button" class="control-btn" id="speedBtn" title="Hız">1x</button>
+              <div id="speedMenu" class="speed-menu speed-menu--wide" aria-hidden="true" aria-label="Oynatma hızı">
+                <button type="button" class="speed-opt" data-rate="2">2x</button>
+                <button type="button" class="speed-opt" data-rate="1.75">1.75x</button>
+                <button type="button" class="speed-opt" data-rate="1.5">1.5x</button>
+                <button type="button" class="speed-opt" data-rate="1.25">1.25x</button>
+                <button type="button" class="speed-opt" data-rate="1" aria-pressed="true">1x</button>
+                <button type="button" class="speed-opt" data-rate="0.75">0.75x</button>
+                <button type="button" class="speed-opt" data-rate="0.5">0.5x</button>
+              </div>
             </div>
 
             <button type="button" class="control-btn icon-btn" id="fsBtn" title="Tam ekran" aria-label="Tam ekran">
