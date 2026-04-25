@@ -13,7 +13,10 @@ router.get('/stream/:videoId', async (req, res) => {
     const out = toProxyStreamUrl(req, direct);
     return res.json({ url: out, videoId, quality: q });
   } catch (err) {
-    logError('ytdlp stream', err instanceof Error ? err : new Error(String(err)));
+    logError('ytdlp stream', err instanceof Error ? err : new Error(String(err)), {
+      code: err && typeof err === 'object' && 'code' in err ? err.code : undefined,
+      detail: err && typeof err === 'object' && 'detail' in err ? String(err.detail || '').slice(0, 1000) : undefined,
+    });
     if (err && typeof err === 'object' && 'code' in err) {
       if (err.code === 'YTDLP_BAD_QUALITY') {
         return res.status(400).json({ error: 'Geçersiz kalite' });
@@ -24,6 +27,11 @@ router.get('/stream/:videoId', async (req, res) => {
       if (err.code === 'YTDLP_COOKIES_INCOMPLETE') {
         return res.status(503).json({
           error: 'YouTube erişimi için cookie eksik/uygunsuz. Google ve YouTube cookie export edip Railway env’e girin.',
+        });
+      }
+      if (err.code === 'YTDLP_ANTIBOT') {
+        return res.status(503).json({
+          error: 'YouTube bot doğrulaması engeli devam ediyor. Proxy ve geçerli login cookie gerekiyor.',
         });
       }
     }
