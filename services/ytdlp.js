@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { YT_CHROME_UA } from '../lib/youtubeUpstream.js';
+import { ensureYtdlpCookiesFile } from '../lib/ytdlpCookies.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -86,6 +87,7 @@ function formatStringAttempts(quality) {
 export async function getStreamUrlWithYtdlp(videoId, quality) {
   const videoUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
   const fAttempts = formatStringAttempts(quality);
+  const cookiesFile = await ensureYtdlpCookiesFile();
   const buildCandidates = (argLine) => (process.platform === 'win32'
     ? [
       { cmd: 'yt-dlp.exe', args: argLine },
@@ -103,6 +105,9 @@ export async function getStreamUrlWithYtdlp(videoId, quality) {
   let lastErr = null;
   for (const fsel of fAttempts) {
     const argLine = ytdlpGetUrlArgs(fsel, videoUrl);
+    if (cookiesFile) {
+      argLine.splice(argLine.length - 1, 0, '--cookies', cookiesFile);
+    }
     const candidates = buildCandidates(argLine);
     for (const c of candidates) {
       try {
