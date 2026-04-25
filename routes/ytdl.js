@@ -21,6 +21,11 @@ router.get('/stream/:videoId', async (req, res) => {
       if (err.code === 'YTDLP_NOT_FOUND') {
         return res.status(503).json({ error: 'yt-dlp bulunamadi (PATH veya Python modulu eksik)' });
       }
+      if (err.code === 'YTDLP_COOKIES_INCOMPLETE') {
+        return res.status(503).json({
+          error: 'YouTube erişimi için cookie eksik/uygunsuz. Google ve YouTube cookie export edip Railway env’e girin.',
+        });
+      }
     }
     return res.status(500).json({ error: 'yt-dlp ile URL alınamadı' });
   }
