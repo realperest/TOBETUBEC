@@ -107,6 +107,15 @@
     }
     m._ttBufUiWire = true;
     m.addEventListener('progress', tick);
+    m.addEventListener('play', function () {
+      updatePlayPauseUi();
+    });
+    m.addEventListener('pause', function () {
+      updatePlayPauseUi();
+    });
+    m.addEventListener('ended', function () {
+      updatePlayPauseUi();
+    });
   }
   setTimeout(wireMediaBufferEvents, 0);
   setTimeout(wireMediaBufferEvents, 800);
