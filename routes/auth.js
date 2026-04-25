@@ -21,8 +21,8 @@ router.get(
       'https://www.googleapis.com/auth/userinfo.profile',
       'https://www.googleapis.com/auth/youtube.readonly',
     ],
-    accessType: 'offline',
-    prompt: 'consent',
+    // Her sayfa yenilemede tekrar Google onayı istememek için.
+    includeGrantedScopes: true,
   }),
 );
 

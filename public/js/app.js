@@ -3,8 +3,6 @@
   const $gridHistory = document.getElementById('panelHistory');
   const tabHome = document.getElementById('tabHome');
   const tabHist = document.getElementById('tabHistory');
-  const $sheet = document.getElementById('qualitySheet');
-  const $title = document.getElementById('qualitySheetTitle');
   const $mainHome = document.getElementById('mainHome');
   const $catRow = document.getElementById('catRow');
   if (
@@ -12,8 +10,6 @@
     !$gridHistory ||
     !tabHome ||
     !tabHist ||
-    !$sheet ||
-    !$title ||
     !$mainHome ||
     !$catRow
   ) {
@@ -23,8 +19,6 @@
   const LS_Q = 'tobetube_default_q';
   const LS_HISTORY = 'tobetube_watch_history_v1';
   const PLAYER_FILES = {
-    1: 'player-v1-iframe',
-    2: 'player-v2-innertube-dash',
     3: 'player-v3-innertube-canvas',
     4: 'player-v4-innertube-webgl',
     5: 'player-v5-ytdlp-proxy',
@@ -38,32 +32,28 @@
   };
   let selectedVideoId = null;
   let currentCat = 'tumu';
-  let openVersion = 2;
   let lastHomeVideoIds = [];
   function getDefaultV() {
-    const s = String(localStorage.getItem(LS_V) || '2');
+    const s = String(localStorage.getItem(LS_V) || '3');
     const n = parseInt(s, 10);
-    if (n >= 1 && n <= 5) {
+    if (n >= 3 && n <= 5) {
       return n;
     }
-    return 2;
+    return 3;
   }
   function getDefaultQ() {
-    return String(localStorage.getItem(LS_Q) || 'auto');
+    return 'auto';
   }
   function setDefault(v, q) {
-    if (v >= 1 && v <= 5) {
+    if (v >= 3 && v <= 5) {
       localStorage.setItem(LS_V, String(v));
     }
-    if (q) {
-      localStorage.setItem(LS_Q, String(q));
-    }
+    localStorage.setItem(LS_Q, 'auto');
   }
   function playerUrlFor(v, q, id) {
-    const file = PLAYER_FILES[v] || PLAYER_FILES[2];
+    const file = PLAYER_FILES[v] || PLAYER_FILES[3];
     const u = new URL('/players/' + file + '.html', window.location.origin);
     u.searchParams.set('videoId', id);
-    u.searchParams.set('q', q);
     return u.toString();
   }
   function loadHistoryList() {
@@ -247,39 +237,21 @@
   $mainHome.addEventListener('click', function () {
     window.location.href = '/';
   });
-  $sheet.addEventListener('click', function (e) {
-    if (e.target === $sheet) {
-      $sheet.setAttribute('aria-hidden', 'true');
-    }
-  });
-  function openQualitySheetFor(v) {
-    openVersion = v;
-    $title.textContent = 'V' + String(v) + ' kalite';
-    $sheet.setAttribute('aria-hidden', 'false');
-  }
   document.querySelectorAll('.nav-v').forEach(function (btn) {
     btn.addEventListener('click', function () {
       const v = parseInt(btn.getAttribute('data-v') || '2', 10);
-      openQualitySheetFor(v);
-    });
-  });
-  $sheet.querySelectorAll('.q-opt').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      const q = String(btn.getAttribute('data-q') || 'auto');
-      setDefault(openVersion, q);
-      $sheet.setAttribute('aria-hidden', 'true');
+      if (v < 3 || v > 5) {
+        return;
+      }
+      setDefault(v, 'auto');
       if (selectedVideoId) {
-        const u = playerUrlFor(openVersion, q, selectedVideoId);
+        const u = playerUrlFor(v, 'auto', selectedVideoId);
         try {
           window.__tobetubePause = true;
         } catch (e) {
           void 0;
         }
         window.location.href = u;
-        return;
-      }
-      if (window.TobeTubeAuth && window.TobeTubeAuth.refresh) {
-        window.TobeTubeAuth.refresh();
       }
     });
   });

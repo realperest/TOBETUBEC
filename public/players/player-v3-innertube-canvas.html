@@ -39,13 +39,23 @@
           </div>
           <div class="row-mid">
             <span id="timeText">0:00 / 0:00</span>
-            <button type="button" class="speed-btn" data-rate="0.75">0.75x</button>
-            <button type="button" class="speed-btn" data-rate="1">1x</button>
-            <button type="button" class="speed-btn" data-rate="1.25">1.25x</button>
-            <button type="button" class="speed-btn" data-rate="1.5">1.5x</button>
-            <button type="button" class="speed-btn" data-rate="2">2x</button>
-            <button type="button" class="quality-btn" id="volumeBtn" title="Ses">Ses</button>
-            <button type="button" class="quality-btn" id="fsBtn" title="Tam ekran">Tam</button>
+            <div class="control-group control-volume">
+              <button type="button" class="quality-btn icon-btn" id="volumeBtn" title="Ses" aria-label="Ses">🔊</button>
+              <input id="volumeRange" type="range" min="0" max="1" step="0.01" value="1" aria-label="Ses seviyesi" />
+            </div>
+            <div class="control-group control-speed">
+              <button type="button" class="quality-btn" id="speedBtn" title="Hız">1x</button>
+              <div id="speedMenu" class="speed-menu" aria-hidden="true">
+                <button type="button" class="speed-opt" data-rate="2">2x</button>
+                <button type="button" class="speed-opt" data-rate="1.75">1.75x</button>
+                <button type="button" class="speed-opt" data-rate="1.5">1.5x</button>
+                <button type="button" class="speed-opt" data-rate="1.25">1.25x</button>
+                <button type="button" class="speed-opt" data-rate="1" aria-pressed="true">Normal</button>
+                <button type="button" class="speed-opt" data-rate="0.75">0.75x</button>
+                <button type="button" class="speed-opt" data-rate="0.5">0.5x</button>
+              </div>
+            </div>
+            <button type="button" class="quality-btn icon-btn" id="fsBtn" title="Tam ekran" aria-label="Tam ekran">⛶</button>
           </div>
         </div>
       </div>
@@ -58,20 +68,9 @@
     <div class="app-bottom" aria-label="Oynatıcı sürümleri">
       <div class="bottom-rail" role="navigation">
         <button type="button" class="nav-home" id="mainHome" title="Ana">Ana</button>
-        <button type="button" class="nav-v" data-v="1" title="V1">V1</button>
-        <button type="button" class="nav-v" data-v="2" title="V2">V2</button>
         <button type="button" class="nav-v" data-v="3" aria-pressed="true" title="V3">V3</button>
         <button type="button" class="nav-v" data-v="4" title="V4">V4</button>
         <button type="button" class="nav-v" data-v="5" title="V5">V5</button>
-      </div>
-    </div>
-    <div class="quality-lift" id="qualitySheet" aria-hidden="true" role="dialog" aria-label="Kalite ve sürüm">
-      <div class="sheet" id="qualitySheetPanel">
-        <div class="q-title" id="qualitySheetTitle">V3 kalite</div>
-        <button type="button" class="q-opt" data-q="480" data-sym="Hizli 480p">Hizli (480p)</button>
-        <button type="button" class="q-opt" data-q="720" data-sym="Dengeli 720p">Dengeli (720p)</button>
-        <button type="button" class="q-opt" data-q="1080" data-sym="Kaliteli 1080p">Kaliteli (1080p)</button>
-        <button type="button" class="q-opt" data-q="auto" data-sym="Otomatik ABR">Otomatik (ABR)</button>
       </div>
     </div>
     <div id="versionFooterP" aria-label="Sürüm"></div>

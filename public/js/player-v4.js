@@ -40,7 +40,7 @@
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   function qParam() {
-    return String(new URLSearchParams(window.location.search).get('q') || 'auto');
+    return 'auto';
   }
   function id() {
     return new URLSearchParams(window.location.search).get('videoId') || '';
@@ -110,7 +110,7 @@
       }
       const li = document.createElement('li');
       const a = document.createElement('a');
-      a.href = '/players/' + selfFile + '?videoId=' + encodeURIComponent(String(s.id)) + '&q=' + encodeURIComponent(qParam());
+      a.href = '/players/' + selfFile + '?videoId=' + encodeURIComponent(String(s.id));
       a.innerHTML = '<img src="' + (s.thumbnail || '').replace(/"/g, '&quot;') + '" alt="" width="120" height="68" /><div><h4>' + (s.title || '').replace(/</g, '&lt;') + '</h4><p>' + (s.channel || '').replace(/</g, '&lt;') + '</p></div>';
       li.appendChild(a);
       ul.appendChild(li);
@@ -128,7 +128,7 @@
         }
         const li = document.createElement('li');
         const a = document.createElement('a');
-        a.href = '/players/' + selfFile + '?videoId=' + encodeURIComponent(String(s.id)) + '&q=' + encodeURIComponent(qParam());
+        a.href = '/players/' + selfFile + '?videoId=' + encodeURIComponent(String(s.id));
         a.innerHTML = '<img src="' + (s.thumbnail || '').replace(/"/g, '&quot;') + '" alt="" width="120" height="68" /><div><h4>' + (s.title || '').replace(/</g, '&lt;') + '</h4><p>' + (s.channel || '').replace(/</g, '&lt;') + '</p></div>';
         li.appendChild(a);
         ul.appendChild(li);
@@ -243,6 +243,18 @@
         },
         setRate: function (r) {
           video.playbackRate = r;
+        },
+        setVolume: function (v) {
+          video.volume = v;
+        },
+        getVolume: function () {
+          return video.volume;
+        },
+        setMuted: function (m) {
+          video.muted = Boolean(m);
+        },
+        getMuted: function () {
+          return Boolean(video.muted);
         },
         play: function () {
           return video.play();

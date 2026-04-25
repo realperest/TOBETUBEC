@@ -1,14 +1,10 @@
 (function () {
   const PlayersByFile = {
-    'player-v1-iframe': 1,
-    'player-v2-innertube-dash': 2,
     'player-v3-innertube-canvas': 3,
     'player-v4-innertube-webgl': 4,
     'player-v5-ytdlp-proxy': 5,
   };
   const FileByNum = {
-    1: 'player-v1-iframe',
-    2: 'player-v2-innertube-dash',
     3: 'player-v3-innertube-canvas',
     4: 'player-v4-innertube-webgl',
     5: 'player-v5-ytdlp-proxy',
@@ -29,6 +25,18 @@
     setRate: function (r) {
       void r;
     },
+    setVolume: function (v) {
+      void v;
+    },
+    getVolume: function () {
+      return 1;
+    },
+    setMuted: function (m) {
+      void m;
+    },
+    getMuted: function () {
+      return false;
+    },
     play: function () {
       return Promise.resolve();
     },
@@ -44,8 +52,9 @@
   const $disc = document.getElementById('disconnect');
   const $fs = document.getElementById('fsBtn');
   const $vol = document.getElementById('volumeBtn');
-  const $qsheet = document.getElementById('qualitySheet');
-  const $qtitle = document.getElementById('qualitySheetTitle');
+  const $speedBtn = document.getElementById('speedBtn');
+  const $speedMenu = document.getElementById('speedMenu');
+  const $volumeRange = document.getElementById('volumeRange');
   if (!$prog || !$fill || !$time || !$disc || !$fs) {
     return;
   }
@@ -102,7 +111,7 @@
   setTimeout(wireMediaBufferEvents, 800);
   setTimeout(wireMediaBufferEvents, 2500);
   const pathName = String(window.location.pathname || '');
-  const fileBase = pathName.replace(/^.*\//, '').replace(/\.html$/, '') || 'player-v2-innertube-dash';
+  const fileBase = pathName.replace(/^.*\//, '').replace(/\.html$/, '') || 'player-v3-innertube-canvas';
   const currentN = PlayersByFile[fileBase] || 2;
   function params() {
     return new URLSearchParams(window.location.search);
@@ -163,20 +172,19 @@
     return Number.isNaN(t) || t < 0 ? 0 : t;
   }
   function getQ() {
-    const s = String(params().get('q') || localStorage.getItem(LS_Q) || 'auto');
-    return s;
+    return 'auto';
   }
   function getDefaultV() {
-    const s = String(localStorage.getItem(LS_V) || '2');
+    const s = String(localStorage.getItem(LS_V) || '3');
     const n = parseInt(s, 10);
-    if (n >= 1 && n <= 5) {
+    if (n >= 3 && n <= 5) {
       return n;
     }
-    return 2;
+    return 3;
   }
   function urlToVersion(n) {
-    const f = FileByNum[n] || 'player-v2-innertube-dash';
-    return '/players/' + f + '.html?videoId=' + encodeURIComponent(videoId()) + '&q=' + encodeURIComponent(getQ());
+    const f = FileByNum[n] || 'player-v3-innertube-canvas';
+    return '/players/' + f + '.html?videoId=' + encodeURIComponent(videoId());
   }
   function setNavState() {
     const v = getDefaultV();
@@ -189,55 +197,20 @@
   document.querySelectorAll('.nav-v').forEach(function (btn) {
     btn.addEventListener('click', function () {
       const n = parseInt(btn.getAttribute('data-v') || '2', 10);
-      if ($qsheet) {
-        $qsheet.setAttribute('aria-hidden', 'false');
-        if ($qtitle) {
-          $qtitle.textContent = 'V' + String(n) + ' kalite';
-        }
-        $qsheet.dataset.nextV = String(n);
-      } else {
-        if (n !== currentN) {
-          try {
-            adapter.pause();
-          } catch (e) {
-            void 0;
-          }
-          localStorage.setItem(LS_V, String(n));
-          window.location.href = urlToVersion(n);
-        }
+      if (n < 3 || n > 5) {
+        return;
       }
-    });
-  });
-  if ($qsheet) {
-    $qsheet.addEventListener('click', function (e) {
-      if (e.target === $qsheet) {
-        $qsheet.setAttribute('aria-hidden', 'true');
-      }
-    });
-    $qsheet.querySelectorAll('.q-opt').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        const q = String(btn.getAttribute('data-q') || 'auto');
-        localStorage.setItem(LS_Q, q);
-        const n = parseInt($qsheet.dataset.nextV || String(currentN), 10);
-        $qsheet.setAttribute('aria-hidden', 'true');
+      if (n !== currentN) {
         try {
           adapter.pause();
         } catch (e) {
           void 0;
         }
-        const u = new URL(window.location.href);
-        u.searchParams.set('q', q);
-        if (n !== currentN) {
-          localStorage.setItem(LS_V, String(n));
-          const f = FileByNum[n] || 'player-v2-innertube-dash';
-          window.location.href = '/players/' + f + '.html?videoId=' + encodeURIComponent(videoId()) + '&q=' + encodeURIComponent(q);
-        } else {
-          u.searchParams.set('t', String(Math.floor(adapter.getCurrentTime() || 0)));
-          window.location.href = u.toString();
-        }
-      });
+        localStorage.setItem(LS_V, String(n));
+        window.location.href = urlToVersion(n);
+      }
     });
-  }
+  });
   const hbtn = document.getElementById('mainHome');
   if (hbtn) {
     hbtn.addEventListener('click', function () {
@@ -302,12 +275,21 @@
     }
   });
   let lastSyncedPlaybackRate = -1;
+  function setSpeedMenuVisible(show) {
+    if (!$speedMenu) {
+      return;
+    }
+    $speedMenu.setAttribute('aria-hidden', show ? 'false' : 'true');
+  }
   function syncSpeedButtonHighlight(rate) {
     const r = Number(rate);
     if (!Number.isFinite(r) || r <= 0) {
       return;
     }
-    const buttons = document.querySelectorAll('.speed-btn');
+    if ($speedBtn) {
+      $speedBtn.textContent = (Math.abs(r - 1) < 0.01 ? 'Normal' : String(r) + 'x');
+    }
+    const buttons = document.querySelectorAll('.speed-opt');
     if (!buttons || buttons.length === 0) {
       return;
     }
@@ -322,15 +304,13 @@
       }
     });
     buttons.forEach(function (b) {
-      b.classList.remove('speed-btn--active');
       b.setAttribute('aria-pressed', 'false');
     });
     if (best && bestDiff < 0.201) {
-      best.classList.add('speed-btn--active');
       best.setAttribute('aria-pressed', 'true');
     }
   }
-  document.querySelectorAll('.speed-btn').forEach(function (b) {
+  document.querySelectorAll('.speed-opt').forEach(function (b) {
     b.setAttribute('aria-pressed', 'false');
     b.addEventListener('click', function () {
       const r = parseFloat(b.getAttribute('data-rate') || '1');
@@ -340,7 +320,30 @@
         media.playbackRate = r;
       }
       syncSpeedButtonHighlight(r);
+      setSpeedMenuVisible(false);
     });
+  });
+  if ($speedBtn) {
+    $speedBtn.addEventListener('click', function () {
+      if (!$speedMenu) {
+        return;
+      }
+      const isOpen = $speedMenu.getAttribute('aria-hidden') === 'false';
+      setSpeedMenuVisible(!isOpen);
+    });
+  }
+  document.addEventListener('click', function (ev) {
+    if (!$speedMenu || !$speedBtn) {
+      return;
+    }
+    const t = ev.target;
+    if (!t || !(t instanceof Element)) {
+      return;
+    }
+    if (t === $speedBtn || $speedMenu.contains(t)) {
+      return;
+    }
+    setSpeedMenuVisible(false);
   });
   syncSpeedButtonHighlight(1);
   $fs.addEventListener('click', function () {
@@ -357,12 +360,21 @@
   });
   if ($vol) {
     $vol.addEventListener('click', function () {
-      if (window.TobeTubeV1) {
-        return;
+      const muted = !(adapter.getMuted && adapter.getMuted()) ? true : false;
+      if (adapter.setMuted) {
+        adapter.setMuted(muted);
       }
-      const h = document.getElementById('hiddenVideo') || document.getElementById('media');
-      if (h) {
-        h.muted = !h.muted;
+      $vol.textContent = muted ? '🔇' : '🔊';
+    });
+  }
+  if ($volumeRange) {
+    $volumeRange.addEventListener('input', function () {
+      const v = Math.max(0, Math.min(1, parseFloat(String($volumeRange.value || '1'))));
+      if (adapter.setVolume) {
+        adapter.setVolume(v);
+      }
+      if ($vol) {
+        $vol.textContent = v <= 0.001 ? '🔇' : '🔊';
       }
     });
   }
@@ -417,6 +429,15 @@
     setAdapter: function (a) {
       if (a && typeof a.getCurrentTime === 'function') {
         adapter = a;
+        if ($volumeRange && adapter.getVolume) {
+          const v = adapter.getVolume();
+          if (typeof v === 'number' && isFinite(v)) {
+            $volumeRange.value = String(Math.max(0, Math.min(1, v)));
+          }
+        }
+        if ($vol && adapter.getMuted) {
+          $vol.textContent = adapter.getMuted() ? '🔇' : '🔊';
+        }
         setTimeout(wireMediaBufferEvents, 0);
         const t = startT();
         if (t > 0) {
