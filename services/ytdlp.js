@@ -54,7 +54,6 @@ function formatSelector(quality) {
 function ytdlpGetUrlArgs(fsel, videoUrl) {
   const proxy = String(process.env.YTDLP_PROXY || '').trim();
   const forceIpv4 = String(process.env.YTDLP_FORCE_IPV4 || '').trim();
-  const verbose = String(process.env.YTDLP_VERBOSE || '').trim();
   return [
     '-g',
     '-f',
@@ -62,7 +61,6 @@ function ytdlpGetUrlArgs(fsel, videoUrl) {
     '--no-warnings',
     '--user-agent',
     YT_CHROME_UA,
-    ...(verbose && verbose !== '0' ? ['-v'] : []),
     ...(proxy ? ['--proxy', proxy] : []),
     ...(forceIpv4 && forceIpv4 !== '0' ? ['--force-ipv4'] : []),
     '--add-header',
@@ -141,14 +139,6 @@ export async function getStreamUrlWithYtdlp(videoId, quality) {
         return line;
       } catch (err) {
         lastErr = err instanceof Error ? err : new Error(String(err));
-        const stderr = err && typeof err === 'object' && 'stderr' in err ? String(err.stderr || '').trim() : '';
-        if (stderr) {
-          /** @type {any} */ (lastErr).detail = stderr;
-        }
-        const msg = (stderr || lastErr.message || '').toLowerCase();
-        if (msg.includes('sign in to confirm') || msg.includes('not a bot') || msg.includes('captcha')) {
-          /** @type {any} */ (lastErr).code = 'YTDLP_ANTIBOT';
-        }
         const code = /** @type {any} */ (lastErr).code;
         if (code === 'ENOENT' || isMissingPythonYtdlp(lastErr)) {
           continue;
