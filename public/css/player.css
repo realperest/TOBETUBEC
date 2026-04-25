@@ -339,6 +339,20 @@ body.player-app {
   z-index: 8;
 }
 
+.speed-menu.speed-menu--overlay {
+  right: 12px;
+  bottom: 72px;
+}
+
+.speed-menu.speed-menu--overlay::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -10px;
+  height: 10px;
+}
+
 .speed-menu[aria-hidden="false"] {
   display: flex;
 }

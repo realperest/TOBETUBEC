@@ -2363,3 +2363,45 @@ Bu sayede kullanÄ±cÄ± bir kez giriÅŸ yaptÄ±ktan sonra, session geÃ§erl
 
 repo
 
+
+## Assistant - 2026-04-25 10:25:58
+
+Tamam, `repo` iÅŸlemi tamamlandÄ±.
+
+- TÃ¼m gÃ¼ncellemeler commit edildi ve pushlandÄ±.
+- Yeni commit: `e1c27e6`
+- `main` dalÄ± `origin/main` ile gÃ¼ncel.
+- Ã‡alÄ±ÅŸma dizini temiz.
+
+Railway otomatik deploy alacaktÄ±r; birkaÃ§ dakika sonra canlÄ±da V1/V2 gizli, yeni kontrol barÄ± ve gÃ¼ncel auth davranÄ±ÅŸÄ± gÃ¶rÃ¼nmeli.
+
+
+## User - 2026-04-25 10:59:37
+
+daha gÃ¼zel olmalÄ± vdieo kontrolleri. biraz daha uÄŸraÅŸ. hÄ±z seÃ§enekleri tÄ±klanÄ±nca yukarÄ± aÃ§Ä±lsÄ±n. yoksa bÃ¶yle hep aÃ§Ä±k olmasÄ±n
+
+
+## Assistant - 2026-04-25 11:01:49
+
+HÄ±z menÃ¼sÃ¼nÃ¼ dÃ¼zelttim.
+
+## Ne deÄŸiÅŸti?
+
+- **HÄ±z seÃ§enekleri artÄ±k sÃ¼rekli aÃ§Ä±k deÄŸil**
+  - `speedMenu` sayfa aÃ§Ä±lÄ±ÅŸÄ±nda zorla **kapalÄ±** baÅŸlÄ±yor.
+  - Sadece **HÄ±z** butonuna basÄ±nca aÃ§Ä±lÄ±yor.
+  - SeÃ§im yapÄ±nca kapanÄ±yor (zaten vardÄ±), ayrÄ±ca:
+    - **DÄ±ÅŸarÄ± tÄ±klayÄ±nca kapanÄ±yor** (zaten vardÄ±)
+    - **Escape ile kapanÄ±yor** (eklendi)
+
+- **MenÃ¼ yukarÄ± doÄŸru videonun Ã¼stÃ¼nde aÃ§Ä±lÄ±yor (overlay)**
+  - `speedMenu` artÄ±k `row-mid` iÃ§inde deÄŸil; **`#videoShell` iÃ§ine taÅŸÄ±ndÄ±** (video Ã¼st katmanÄ±).
+  - CSS ile saÄŸ altta, kontrollerin Ã¼stÃ¼nde yukarÄ± aÃ§Ä±lÄ±yor.
+
+Åu an deÄŸiÅŸiklikler localde hazÄ±r. CanlÄ±ya almak iÃ§in `repo` yazarsan pushlayayÄ±m.
+
+
+## User - 2026-04-25 11:01:54
+
+repo
+

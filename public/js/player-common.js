@@ -281,6 +281,7 @@
     }
     $speedMenu.setAttribute('aria-hidden', show ? 'false' : 'true');
   }
+  setSpeedMenuVisible(false);
   function syncSpeedButtonHighlight(rate) {
     const r = Number(rate);
     if (!Number.isFinite(r) || r <= 0) {
@@ -332,6 +333,11 @@
       setSpeedMenuVisible(!isOpen);
     });
   }
+  document.addEventListener('keydown', function (e) {
+    if (e && e.key === 'Escape') {
+      setSpeedMenuVisible(false);
+    }
+  });
   document.addEventListener('click', function (ev) {
     if (!$speedMenu || !$speedBtn) {
       return;
