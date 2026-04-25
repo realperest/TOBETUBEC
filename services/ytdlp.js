@@ -64,7 +64,7 @@ function ytdlpGetUrlArgs(fsel, videoUrl) {
     '--add-header',
     'Accept-Language:en-US,en;q=0.9',
     '--extractor-args',
-    'youtube:player_client=web',
+    'youtube:player_client=web,android,ios',
     videoUrl,
   ];
 }
