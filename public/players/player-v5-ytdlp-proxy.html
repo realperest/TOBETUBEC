@@ -29,33 +29,68 @@
         <div id="videoShell">
           <video id="hiddenVideo" playsinline crossorigin="anonymous"></video>
           <canvas id="viewCanvas5" width="1280" height="720" aria-label="Video"></canvas>
-          <div id="speedMenu" class="speed-menu speed-menu--overlay" aria-hidden="true" aria-label="Oynatma hızı">
+          <div id="speedMenu" class="speed-menu" aria-hidden="true" aria-label="Oynatma hızı">
             <button type="button" class="speed-opt" data-rate="2">2x</button>
             <button type="button" class="speed-opt" data-rate="1.75">1.75x</button>
             <button type="button" class="speed-opt" data-rate="1.5">1.5x</button>
             <button type="button" class="speed-opt" data-rate="1.25">1.25x</button>
-            <button type="button" class="speed-opt" data-rate="1" aria-pressed="true">Normal</button>
+            <button type="button" class="speed-opt" data-rate="1" aria-pressed="true">1x</button>
             <button type="button" class="speed-opt" data-rate="0.75">0.75x</button>
             <button type="button" class="speed-opt" data-rate="0.5">0.5x</button>
           </div>
         </div>
-        <div class="controls">
-          <div class="row-top">
-            <div id="progress" aria-label="İlerleme">
-              <div id="progressBuffered" aria-hidden="true"></div>
-              <div id="progressFill"></div>
-            </div>
-          </div>
-          <div class="row-mid">
-            <span id="timeText">0:00 / 0:00</span>
+        <div class="controls controls-yt">
+          <div class="row-mid row-mid-yt">
+            <button type="button" class="control-btn icon-btn" id="playPauseBtn" title="Oynat / Duraklat" aria-label="Oynat">
+              <span class="icon icon-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true">
+                  <path fill="currentColor" d="M8 5v14l11-7z"></path>
+                </svg>
+              </span>
+              <span class="icon icon-pause" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true">
+                  <path fill="currentColor" d="M6 5h4v14H6zm8 0h4v14h-4z"></path>
+                </svg>
+              </span>
+            </button>
+
             <div class="control-group control-volume">
-              <button type="button" class="quality-btn icon-btn" id="volumeBtn" title="Ses" aria-label="Ses">🔊</button>
-              <input id="volumeRange" type="range" min="0" max="1" step="0.01" value="1" aria-label="Ses seviyesi" />
+              <button type="button" class="control-btn icon-btn" id="volumeBtn" title="Ses" aria-label="Ses">
+                <span class="icon icon-volume" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true">
+                    <path fill="currentColor" d="M3 10v4h4l5 4V6L7 10H3z"></path>
+                    <path fill="currentColor" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"></path>
+                    <path fill="currentColor" d="M14 3.23v2.06c2.89 1 5 3.77 5 6.71s-2.11 5.71-5 6.71v2.06c4.01-1.07 7-4.73 7-8.77s-2.99-7.7-7-8.77z"></path>
+                  </svg>
+                </span>
+                <span class="icon icon-mute" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true">
+                    <path fill="currentColor" d="M3 10v4h4l5 4V6L7 10H3z"></path>
+                    <path fill="currentColor" d="M16.5 12l4.5 4.5-1.5 1.5L15 13.5l-4.5 4.5-1.5-1.5L13.5 12 9 7.5 10.5 6 15 10.5 19.5 6 21 7.5z"></path>
+                  </svg>
+                </span>
+              </button>
+              <input id="volumeRange" class="control-range" type="range" min="0" max="1" step="0.01" value="1" aria-label="Ses seviyesi" />
             </div>
+
+            <span id="timeText" class="timeText">0:00 / 0:00</span>
+
+            <div class="progress-inline" aria-label="İlerleme">
+              <div id="progress" class="progress-bar">
+                <div id="progressBuffered" aria-hidden="true"></div>
+                <div id="progressFill"></div>
+              </div>
+            </div>
+
             <div class="control-group control-speed">
-              <button type="button" class="quality-btn" id="speedBtn" title="Hız">1x</button>
+              <button type="button" class="control-btn" id="speedBtn" title="Hız">1x</button>
             </div>
-            <button type="button" class="quality-btn icon-btn" id="fsBtn" title="Tam ekran" aria-label="Tam ekran">⛶</button>
+
+            <button type="button" class="control-btn icon-btn" id="fsBtn" title="Tam ekran" aria-label="Tam ekran">
+              <svg viewBox="0 0 24 24" width="22" height="22" focusable="false" aria-hidden="true">
+                <path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm0-4h2V7h3V5H5v5zm10 7h-3v2h5v-5h-2v3zm0-12V5h-5v2h3v3h2z"></path>
+              </svg>
+            </button>
           </div>
         </div>
       </div>

@@ -55,6 +55,7 @@
   const $speedBtn = document.getElementById('speedBtn');
   const $speedMenu = document.getElementById('speedMenu');
   const $volumeRange = document.getElementById('volumeRange');
+  const $playPause = document.getElementById('playPauseBtn');
   if (!$prog || !$fill || !$time || !$disc || !$fs) {
     return;
   }
@@ -282,13 +283,22 @@
     $speedMenu.setAttribute('aria-hidden', show ? 'false' : 'true');
   }
   setSpeedMenuVisible(false);
+  function updatePlayPauseUi() {
+    if (!$playPause) {
+      return;
+    }
+    const paused = !!(adapter.isPaused && adapter.isPaused());
+    $playPause.setAttribute('data-state', paused ? 'paused' : 'playing');
+    $playPause.setAttribute('aria-label', paused ? 'Oynat' : 'Duraklat');
+    $playPause.setAttribute('title', paused ? 'Oynat' : 'Duraklat');
+  }
   function syncSpeedButtonHighlight(rate) {
     const r = Number(rate);
     if (!Number.isFinite(r) || r <= 0) {
       return;
     }
     if ($speedBtn) {
-      $speedBtn.textContent = (Math.abs(r - 1) < 0.01 ? 'Normal' : String(r) + 'x');
+      $speedBtn.textContent = String(r) + 'x';
     }
     const buttons = document.querySelectorAll('.speed-opt');
     if (!buttons || buttons.length === 0) {
@@ -352,6 +362,20 @@
     setSpeedMenuVisible(false);
   });
   syncSpeedButtonHighlight(1);
+  if ($playPause) {
+    $playPause.addEventListener('click', function () {
+      try {
+        if (adapter.isPaused && adapter.isPaused()) {
+          void adapter.play();
+        } else {
+          adapter.pause();
+        }
+      } catch (e) {
+        void e;
+      }
+      setTimeout(updatePlayPauseUi, 0);
+    });
+  }
   $fs.addEventListener('click', function () {
     const el = document.getElementById('videoShell') || document.body;
     if (!document.fullscreenElement) {
@@ -370,7 +394,7 @@
       if (adapter.setMuted) {
         adapter.setMuted(muted);
       }
-      $vol.textContent = muted ? '🔇' : '🔊';
+      $vol.setAttribute('data-muted', muted ? 'true' : 'false');
     });
   }
   if ($volumeRange) {
@@ -380,7 +404,7 @@
         adapter.setVolume(v);
       }
       if ($vol) {
-        $vol.textContent = v <= 0.001 ? '🔇' : '🔊';
+        $vol.setAttribute('data-muted', v <= 0.001 ? 'true' : 'false');
       }
     });
   }
@@ -442,8 +466,9 @@
           }
         }
         if ($vol && adapter.getMuted) {
-          $vol.textContent = adapter.getMuted() ? '🔇' : '🔊';
+          $vol.setAttribute('data-muted', adapter.getMuted() ? 'true' : 'false');
         }
+        updatePlayPauseUi();
         setTimeout(wireMediaBufferEvents, 0);
         const t = startT();
         if (t > 0) {

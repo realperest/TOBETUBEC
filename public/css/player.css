@@ -217,6 +217,86 @@ body.player-app {
   background: #121212;
 }
 
+.controls-yt {
+  padding: 10px 12px 84px 12px;
+}
+
+.row-mid-yt {
+  flex-wrap: nowrap;
+  gap: 12px;
+  margin-bottom: 0;
+}
+
+.control-btn {
+  min-height: 44px;
+  min-width: 44px;
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.control-btn:focus-visible {
+  outline: 2px solid #4a90d9;
+  outline-offset: 2px;
+}
+
+#playPauseBtn .icon-pause {
+  display: none;
+}
+
+#playPauseBtn[data-state="playing"] .icon-play {
+  display: none;
+}
+
+#playPauseBtn[data-state="playing"] .icon-pause {
+  display: inline-flex;
+}
+
+#volumeBtn .icon-mute {
+  display: none;
+}
+
+#volumeBtn[data-muted="true"] .icon-volume {
+  display: none;
+}
+
+#volumeBtn[data-muted="true"] .icon-mute {
+  display: inline-flex;
+}
+
+.timeText {
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  color: #e6e6e6;
+  white-space: nowrap;
+}
+
+.progress-inline {
+  flex: 1 1 auto;
+  min-width: 140px;
+}
+
+.progress-bar {
+  width: 100%;
+  min-height: 10px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.progress-bar #progressBuffered {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.progress-bar #progressFill {
+  background: #ff0000;
+}
+
 .row-top,
 .row-mid,
 .row-btm {
@@ -315,7 +395,8 @@ body.player-app {
   padding: 0 10px;
 }
 
-#volumeRange {
+#volumeRange,
+.control-range {
   width: 110px;
   accent-color: #fff;
 }
@@ -327,7 +408,7 @@ body.player-app {
 .speed-menu {
   position: absolute;
   right: 0;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 10px);
   display: none;
   flex-direction: column;
   min-width: 120px;
@@ -337,20 +418,6 @@ body.player-app {
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   z-index: 8;
-}
-
-.speed-menu.speed-menu--overlay {
-  right: 12px;
-  bottom: 72px;
-}
-
-.speed-menu.speed-menu--overlay::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -10px;
-  height: 10px;
 }
 
 .speed-menu[aria-hidden="false"] {
