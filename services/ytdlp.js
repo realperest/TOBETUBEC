@@ -52,8 +52,6 @@ function formatSelector(quality) {
  * @returns {string[]}
  */
 function ytdlpGetUrlArgs(fsel, videoUrl) {
-  const proxy = String(process.env.YTDLP_PROXY || '').trim();
-  const forceIpv4 = String(process.env.YTDLP_FORCE_IPV4 || '').trim();
   return [
     '-g',
     '-f',
@@ -61,8 +59,6 @@ function ytdlpGetUrlArgs(fsel, videoUrl) {
     '--no-warnings',
     '--user-agent',
     YT_CHROME_UA,
-    ...(proxy ? ['--proxy', proxy] : []),
-    ...(forceIpv4 && forceIpv4 !== '0' ? ['--force-ipv4'] : []),
     '--add-header',
     'Referer:https://www.youtube.com/watch',
     '--add-header',
