@@ -1,15 +1,11 @@
 import express from 'express';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { ProxyAgent } from 'undici';
 import { logError } from '../lib/log.js';
 import { YT_ANDROID_APP_UA, YT_IOS_APP_UA, youtubeUpstreamHeaders } from '../lib/youtubeUpstream.js';
 import { getInnertube } from '../services/innertube.js';
 
 const router = express.Router();
-
-const upstreamProxy = String(process.env.YTDLP_PROXY || '').trim();
-const upstreamDispatcher = upstreamProxy ? new ProxyAgent(upstreamProxy) : null;
 
 function isAllowedStreamUrl(href) {
   try {
@@ -64,9 +60,9 @@ router.get('/stream', async (req, res) => {
         buildReq({ Referer: 'https://www.youtube.com/', Origin: 'https://www.youtube.com', 'User-Agent': YT_IOS_APP_UA }),
       );
     }
-    let r = await fetch(decoded, { headers: attemptSets[0], dispatcher: upstreamDispatcher || undefined });
+    let r = await fetch(decoded, { headers: attemptSets[0] });
     for (let i = 1; i < attemptSets.length && r.status === 403; i += 1) {
-      r = await fetch(decoded, { headers: attemptSets[i], dispatcher: upstreamDispatcher || undefined });
+      r = await fetch(decoded, { headers: attemptSets[i] });
     }
     if (!r.ok && r.status !== 206) {
       const sample = decoded.length > 100 ? `${decoded.slice(0, 100)}...` : decoded;
