@@ -7,6 +7,8 @@ import session from 'express-session';
 import compression from 'compression';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { RedisStore } from 'connect-redis';
+import { createClient } from 'redis';
 import { WebSocketServer } from 'ws';
 
 import authRouter from './routes/auth.js';
@@ -31,16 +33,49 @@ if (!process.env.SESSION_SECRET) {
   logError('SESSION_SECRET yok; .env örneğini kopyalayın', new Error('SESSION_SECRET'), {});
 }
 
+/**
+ * REDIS_URL tanımlıysa production için Redis session store kullan.
+ * Tanımlı değilse lokalde MemoryStore ile devam edilir.
+ * @returns {import('express-session').Store | undefined}
+ */
+function buildSessionStore() {
+  const redisUrl = String(process.env.REDIS_URL || '').trim();
+  if (!redisUrl) {
+    if (isProd) {
+      logInfo('REDIS_URL yok: production MemoryStore ile devam ediyor', {});
+    }
+    return undefined;
+  }
+  try {
+    const redisClient = createClient({ url: redisUrl });
+    redisClient.on('error', (err) => {
+      logError('redis client', err instanceof Error ? err : new Error(String(err)));
+    });
+    redisClient.connect().catch((err) => {
+      logError('redis connect', err instanceof Error ? err : new Error(String(err)));
+    });
+    return new RedisStore({
+      client: redisClient,
+      prefix: 'tobetube:sess:',
+    });
+  } catch (err) {
+    logError('Redis session store başlatılamadı; MemoryStore fallback', err instanceof Error ? err : new Error(String(err)), {});
+    return undefined;
+  }
+}
+
 app.set('trust proxy', 1);
 app.use(compression({ threshold: 1024 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const sessionStore = buildSessionStore();
 app.use(
   session({
     name: 'tobetube.sid',
     secret: process.env.SESSION_SECRET || 'dev-unsafe-secret-degistir',
     resave: false,
     saveUninitialized: false,
+    store: sessionStore,
     cookie: {
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -165,7 +200,7 @@ wss.on('connection', (ws) => {
 });
 
 server.listen(port, () => {
-  logInfo('Sunucu dinliyor', { port });
+  logInfo('Sunucu dinliyor', { port, sessionStore: sessionStore ? 'redis' : 'memory' });
 });
 
 process.on('unhandledRejection', (reason) => {

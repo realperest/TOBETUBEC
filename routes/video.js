@@ -1,6 +1,5 @@
 import express from 'express';
 import { getInnertube } from '../services/innertube.js';
-import { requireAuth } from '../middleware/auth.middleware.js';
 import { toProxyStreamUrl, getRequestPublicBaseUrl } from '../lib/videoMappers.js';
 import { getOrSet } from '../services/cache.js';
 import { logError, logInfo } from '../lib/log.js';
@@ -184,7 +183,6 @@ async function resolveDirectManifestUrl(innertube, videoId, kind, firstInfo) {
 }
 
 const router = express.Router();
-router.use(requireAuth);
 
 /**
  * @param {import('express').Request} req

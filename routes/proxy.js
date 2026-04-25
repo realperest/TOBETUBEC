@@ -1,13 +1,11 @@
 import express from 'express';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { requireAuth } from '../middleware/auth.middleware.js';
 import { logError } from '../lib/log.js';
 import { YT_ANDROID_APP_UA, YT_IOS_APP_UA, youtubeUpstreamHeaders } from '../lib/youtubeUpstream.js';
 import { getInnertube } from '../services/innertube.js';
 
 const router = express.Router();
-router.use(requireAuth);
 
 function isAllowedStreamUrl(href) {
   try {

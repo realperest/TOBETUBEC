@@ -1,13 +1,11 @@
 import express from 'express';
 import { getInnertube } from '../services/innertube.js';
 import { mapSearchVideoNode, isMusicLikeContent } from '../lib/videoMappers.js';
-import { requireAuth } from '../middleware/auth.middleware.js';
 import { tryConsumeSearch, getQuota } from '../services/quota.js';
 import { saveSearchState, takeSearchState } from '../services/searchContinuation.js';
 import { logError } from '../lib/log.js';
 
 const router = express.Router();
-router.use(requireAuth);
 
 router.get('/', async (req, res) => {
   const q = String(req.query.q || '').trim();

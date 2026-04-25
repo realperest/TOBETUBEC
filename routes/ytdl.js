@@ -1,11 +1,9 @@
 import express from 'express';
-import { requireAuth } from '../middleware/auth.middleware.js';
 import { getStreamUrlWithYtdlp } from '../services/ytdlp.js';
 import { toProxyStreamUrl } from '../lib/videoMappers.js';
 import { logError } from '../lib/log.js';
 
 const router = express.Router();
-router.use(requireAuth);
 
 router.get('/stream/:videoId', async (req, res) => {
   const { videoId } = req.params;

@@ -1,11 +1,9 @@
 import express from 'express';
 import { getInnertube } from '../services/innertube.js';
-import { requireAuth } from '../middleware/auth.middleware.js';
 import { mapSearchVideoNode, isMusicLikeContent } from '../lib/videoMappers.js';
 import { logError } from '../lib/log.js';
 
 const router = express.Router();
-router.use(requireAuth);
 
 router.get('/sezgisel', async (req, res) => {
   try {

@@ -154,10 +154,6 @@
   }
   async function loadTrending() {
     const r = await fetch('/api/trending', { credentials: 'include' });
-    if (r.status === 401) {
-      showError('Giriş yapin');
-      return;
-    }
     if (!r.ok) {
       let msg = 'Içerik yüklenemedi';
       try {
@@ -182,10 +178,6 @@
     u.set('q', q);
     const r = await fetch('/api/search?' + u.toString(), { credentials: 'include' });
     const d = await r.json();
-    if (r.status === 401) {
-      showError('Giriş yapin');
-      return;
-    }
     if (r.status === 429) {
       showError(d && d.error ? d.error : 'Limit');
       if (window.TobeTubeQuota && window.TobeTubeQuota.tick) {
