@@ -1,10 +1,10 @@
 [phases.setup]
 nixPkgs = ["nodejs_20"]
-aptPkgs = ["ffmpeg", "ca-certificates", "curl", "python3"]
+aptPkgs = ["ffmpeg", "ca-certificates", "curl", "python3", "python3-pip"]
 
 [phases.install]
 cmds = [
-  "curl -fsSL -L -o /usr/local/bin/yt-dlp https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp && chmod 755 /usr/local/bin/yt-dlp",
+  "python3 -m pip install --no-cache-dir --break-system-packages \"yt-dlp==2026.3.17\"",
   "npm ci --omit=dev || npm install --omit=dev"
 ]
 
