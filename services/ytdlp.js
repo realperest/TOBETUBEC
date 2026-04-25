@@ -75,7 +75,15 @@ function ytdlpGetUrlArgs(fsel, videoUrl) {
  */
 function formatStringAttempts(quality) {
   const primary = formatSelector(quality);
-  return [primary, 'best[acodec!=none][vcodec!=none]/22/18/best', 'b', 'w'];
+  // "b" / "w" gibi kısaltmalar yt-dlp'de geçerli format seçici değildir.
+  // Burada amaç: tek dosya A+V (mp4) öncelikli, sonra genel fallback.
+  return [
+    primary,
+    'best[acodec!=none][vcodec!=none]/best',
+    '22/18/best',
+    'best',
+    'worst',
+  ];
 }
 
 /**
